@@ -4,4 +4,10 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "lehmer>=0.1.4",
+    "matching>=1.4.3",
+    "numba>=0.66.0",
+    "scipy>=1.18.0",
+    "tqdm>=4.68.4",
+]
