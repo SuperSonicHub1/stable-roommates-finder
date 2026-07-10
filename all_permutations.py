@@ -14,6 +14,13 @@ def insert_at(l: list[int], i: int, n: int) -> list[int]:
     return l
 
 
+def table_to_rank(table: np.ndarray, n: int) -> list[list[int]]:
+    return [
+        insert_at(invert_permutation(row.tolist()), idx, n)
+        for idx, row in enumerate(table)
+    ]
+
+
 def implies(p: bool, q: bool) -> bool:
     return not p or q
 
@@ -25,15 +32,11 @@ def prefers(i: int, a: int, b: int, rank: list[list[int]]) -> bool:
     return rank[i][a] < rank[i][b]
 
 
-def test2(table: np.ndarray, perm: list[int], n: int) -> bool:
+def test(rank: list[list[int]], perm: list[int], n: int) -> bool:
     """
-    Is `perm` stable relative to `table`?
+    Is `perm` stable relative to `rank`?
     """
     perm_inv = invert_permutation(perm)
-    rank = [
-        insert_at(invert_permutation(row.tolist()), idx, n)
-        for idx, row in enumerate(table)
-    ]
 
     # for all i: i does not prefer perm[i] to perm_inv[i]
     # there does not exist i: i prefers perm[i] to perm_inv[i]
@@ -62,22 +65,25 @@ def main(n: int) -> list[Result]:
 
     for preference_indices in product(range(factorial(n - 1)), repeat=n):
         table = lc_pred.decode(np.array(preference_indices))
+        rank = table_to_rank(table, n)
         for perm_idx in range(factorial(n)):
             perm: list[int] = lc.decode(perm_idx, squeeze=True).tolist()
-            result = test2(table, perm, n)
+            result = test(rank, perm, n)
             results.append((preference_indices, perm_idx, result))
 
     return results
 
 
 if __name__ == "__main__":
+    import networkx as nx
+    from networkx.algorithms import bipartite
+    import matplotlib.pyplot as plt
 
     def test_all():
         """
         Test correctness.
         """
         from fractions import Fraction
-        from itertools import permutations
 
         def prob(pi: int) -> Fraction:
             sub_results = [r for r in results if r[1] == pi]
@@ -98,23 +104,28 @@ if __name__ == "__main__":
         # [1^1, 1^3]
         assert prob(3) == Fraction(1, 216)
 
-    def display():
-        import networkx as nx
-        from networkx.algorithms import bipartite
-        import matplotlib.pyplot as plt
-
-        n = 4
+    def create_graph(n: int, full: bool = False) -> nx.Graph:
+        # NetworkX doesn't like disconnected bipartite graphs
         results = main(n)
         B = nx.Graph()
-        B.add_nodes_from(product(range(factorial(n - 1)), repeat=n), bipartite=0)
-        B.add_nodes_from(range(factorial(n)), bipartite=1)
+        if full:
+            B.add_nodes_from(product(range(factorial(n - 1)), repeat=n), bipartite=0)
+            B.add_nodes_from(range(factorial(n)), bipartite=1)
         B.add_edges_from([r[:2] for r in results if r[2]])
-        nx.draw(
-            B,
-            pos=nx.bipartite_layout(
-                B, nodes=product(range(factorial(n - 1)), repeat=n)
-            ),
+        return B
+
+    def display(full: bool = False):
+        n = 4
+        B = create_graph(n, full=full)
+
+        pos = nx.bipartite_layout(G=B, nodes=product(range(factorial(n - 1)), repeat=n))
+        nx.draw(B, pos=pos)
+        # Draw permutation labels
+        _, seen_perms = bipartite.sets(
+            B, top_nodes=product(range(factorial(n - 1)), repeat=n)
         )
+        nx.draw_networkx_labels(B, pos, labels={i: i for i in seen_perms})
         plt.show()
 
     test_all()
+    display()
