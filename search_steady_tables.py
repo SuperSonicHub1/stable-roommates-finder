@@ -1,6 +1,5 @@
 import matching
 import json
-from multiprocessing import Pool
 from tqdm import tqdm
 from matching import Player
 from dataclasses import dataclass
@@ -70,15 +69,18 @@ def test_all_perms(prefs: tuple[int, ...]) -> dict[int, bool]:
     }
 
 
-result = find_steady_table(10)
-perms2stable = test_all_perms(result.prefs)
-assert perms2stable[result.matching]
+if __name__ == "__main__":
+    result = find_steady_table(10)
+    perms2stable = test_all_perms(result.prefs)
+    assert perms2stable[result.matching]
 
-filename = (
-    f"data/stable_permutations__{"_".join(str(pref) for pref in result.prefs)}.json"
-)
-with open(filename, "w") as f:
-    json.dump(
-        dict(prefs=result.prefs, matching=result.matching, stability=[k for k, v in perms2stable.items() if v]),
-        f,
-    )
+    filename = f"data/search_steady_tables/stable_permutations__{"_".join(str(pref) for pref in result.prefs)}.json"
+    with open(filename, "w") as f:
+        json.dump(
+            dict(
+                prefs=result.prefs,
+                matching=result.matching,
+                stability=[k for k, v in perms2stable.items() if v],
+            ),
+            f,
+        )
