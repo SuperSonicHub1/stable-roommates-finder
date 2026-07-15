@@ -61,7 +61,7 @@ if __name__ == "__main__":
     ]
     print(f"{sum(tests)}/{len(tests)}")
     with open(
-        f"data/perturb_stable_tables/stable_tables__{"_".join(map(str, result.prefs))}.json",
+        f"stable-roommates-finder-data/perturb_stable_tables/stable_tables__{"_".join(map(str, result.prefs))}.json",
         "w",
     ) as f:
         json.dump(

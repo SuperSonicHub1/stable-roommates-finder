@@ -74,7 +74,7 @@ if __name__ == "__main__":
     perms2stable = test_all_perms(result.prefs)
     assert perms2stable[result.matching]
 
-    filename = f"data/search_steady_tables/stable_permutations__{"_".join(str(pref) for pref in result.prefs)}.json"
+    filename = f"stable-roommates-finder-data/search_steady_tables/stable_permutations__{"_".join(str(pref) for pref in result.prefs)}.json"
     with open(filename, "w") as f:
         json.dump(
             dict(
