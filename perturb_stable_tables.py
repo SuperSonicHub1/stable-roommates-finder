@@ -66,6 +66,8 @@ if __name__ == "__main__":
     ) as f:
         json.dump(
             dict(
+                n=n,
+                N=n,
                 prefs=result.prefs,
                 matching=result.matching,
                 perturbations=perturbations,
