@@ -1,3 +1,4 @@
+import json
 from tqdm import tqdm
 import random
 from lehmer import Lehmer
@@ -23,7 +24,7 @@ def apply_transposition(index: int, i: int, lc_pred: Lehmer) -> int:
     return lc_pred.code2index(code, squeeze=True)
 
 
-def perturb_table(prefs: tuple[int, ...], lc_pred: Lehmer):
+def perturb_table(prefs: tuple[int, ...], lc_pred: Lehmer) -> tuple[int, ...]:
     n_prev = lc_pred.n
     n = n_prev + 1
     perm_to_modify = random.randrange(n)
@@ -32,6 +33,19 @@ def perturb_table(prefs: tuple[int, ...], lc_pred: Lehmer):
     )
     return prefs[:perm_to_modify] + (modified,) + prefs[perm_to_modify + 1 :]
 
+
+def generate_perturbations(
+    prefs: tuple[int, ...], N: int, lc_pred: Lehmer
+) -> list[tuple[int, ...]]:
+    choices = [prefs]
+    for _ in tqdm(range(N)):
+        choices.append(perturb_table(random.choice(choices), lc_pred))
+
+    deduped = set(choices)
+    deduped.remove(prefs)
+    return list(deduped)
+
+
 if __name__ == "__main__":
     n = 10
     N = 1_000_000
@@ -39,10 +53,23 @@ if __name__ == "__main__":
     lc_pred = Lehmer(n - 1)
     lc = Lehmer(n)
     result = find_steady_table(n)
-    perm = lc.decode(result.matching, squeeze=True).tolist()
-    perturbations = [perturb_table(result.prefs, lc_pred) for _ in range(N)]
+    matching_perm = lc.decode(result.matching, squeeze=True).tolist()
+    perturbations = generate_perturbations(result.prefs, N, lc_pred)
     tests = [
-        test(table_to_rank(prefs_to_table(prefs, lc_pred), n), perm, n)
+        test(table_to_rank(prefs_to_table(prefs, lc_pred), n), matching_perm, n)
         for prefs in tqdm(perturbations)
     ]
-    
+    print(f"{sum(tests)}/{len(tests)}")
+    with open(
+        f"data/perturb_stable_tables/stable_tables__{"_".join(map(str, result.prefs))}.json",
+        "w",
+    ) as f:
+        json.dump(
+            dict(
+                prefs=result.prefs,
+                matching=result.matching,
+                perturbations=perturbations,
+                tests=tests,
+            ),
+            f,
+        )

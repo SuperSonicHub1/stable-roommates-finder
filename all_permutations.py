@@ -127,5 +127,15 @@ if __name__ == "__main__":
         nx.draw_networkx_labels(B, pos, labels={i: i for i in seen_perms})
         plt.show()
 
+    def analysis():
+        n = 4
+        B = create_graph(n)
+        top_nodes = set(product(range(factorial(n - 1)), repeat=n))
+        _, seen_perms = bipartite.sets(
+            B, top_nodes=top_nodes
+        )
+        
+
+
     test_all()
     display()
