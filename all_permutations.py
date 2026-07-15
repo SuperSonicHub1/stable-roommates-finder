@@ -3,11 +3,7 @@ from lehmer import Lehmer
 from math import factorial
 from itertools import product
 import numpy as np
-
-
-def invert_permutation(perm: list[int]) -> list[int]:
-    return [perm.index(i) for i in range(len(perm))]
-
+from permutations import invert as invert_permutation
 
 def insert_at(l: list[int], i: int, n: int) -> list[int]:
     l.insert(i, n - 1)
