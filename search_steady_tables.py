@@ -1,3 +1,4 @@
+from permutations import Preferences
 import matching
 import json
 from tqdm import tqdm
@@ -13,17 +14,17 @@ from matching.games import StableRoommates
 import numpy as np
 
 
-def random_prefs(n: int) -> tuple[int, ...]:
+def random_prefs(n: int) -> Preferences:
     n_pred_fac = factorial(n - 1)
     pref_indices = tuple(random.randrange(n_pred_fac) for _ in range(n))
     return pref_indices
 
 
-def prefs_to_table(prefs: tuple[int, ...], lc_pred: Lehmer) -> np.ndarray:
+def prefs_to_table(prefs: Preferences, lc_pred: Lehmer) -> np.ndarray:
     return lc_pred.decode(np.array(prefs))
 
 
-def prefs_to_game(prefs: tuple[int, ...], lc_pred: Lehmer) -> StableRoommates:
+def prefs_to_game(prefs: Preferences, lc_pred: Lehmer) -> StableRoommates:
     player_prefs = {
         i: [j if j < i else j + 1 for j in lc_pred.decode(index, squeeze=True).tolist()]
         for i, index in enumerate(prefs)
@@ -33,7 +34,7 @@ def prefs_to_game(prefs: tuple[int, ...], lc_pred: Lehmer) -> StableRoommates:
 
 @dataclass
 class SteadyTableResult:
-    prefs: tuple[int, ...]
+    prefs: Preferences
     matching: int
 
 
@@ -58,7 +59,7 @@ def find_steady_table(n: int) -> SteadyTableResult:
             )
 
 
-def test_all_perms(prefs: tuple[int, ...]) -> dict[int, bool]:
+def test_all_perms(prefs: Preferences) -> dict[int, bool]:
     n = len(prefs)
     lc = Lehmer(n)
     lc_pred = Lehmer(n - 1)

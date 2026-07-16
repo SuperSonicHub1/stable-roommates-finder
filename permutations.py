@@ -2,6 +2,8 @@
 Common functions for working with permutations.
 """
 
+from typing import Sequence
+
 from numpy import ndarray
 from functools import lru_cache
 from lehmer import Lehmer
@@ -9,13 +11,16 @@ from lehmer import Lehmer
 # Types
 
 # A permutation of the integers [0, len(sigma)).
-type Permutation = list[int]
+type Permutation = Sequence[int]
 
 # The lexicographical index of a Lehmer code.
 type PermutationIndex = int
 
 # A Lehmer code.
 type LehmerCode = ndarray
+
+# A compressed preference table
+type Preferences = Sequence[PermutationIndex]
 
 
 # Meta-utilities
@@ -33,7 +38,7 @@ def compose(sigma_1: Permutation, sigma_2: Permutation) -> Permutation:
     ```
     """
     n = len(sigma_1)
-    assert n == sigma_2
+    assert n == len(sigma_2)
     return [sigma_1[sigma_2[i]] for i in range(n)]
 
 
@@ -50,7 +55,6 @@ def invert(sigma: Permutation) -> Permutation:
 def identity(n: int) -> Permutation:
     return list(range(n))
 
-
 # Properties
 
 
@@ -65,7 +69,7 @@ def code_to_inversions(code: LehmerCode) -> int:
 def inversions(sigma: Permutation) -> int:
     return code_to_inversions(
         lehmer(len(sigma)).perm2code(
-            sigma, squeeze=True
+            sigma, squeeze=True  # ty:ignore[invalid-argument-type]
         )  # ty:ignore[invalid-argument-type]
     )
 
