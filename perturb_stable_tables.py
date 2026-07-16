@@ -12,6 +12,8 @@ def apply_transposition(index: PermutationIndex, i: int, lc_pred: Lehmer) -> int
     """
     Multiply the permutation at index with the transposition (i, i + 1).
     Follows https://www.mathe2.uni-bayreuth.de/frib/KERBER/h00/node30.html
+    Note: (n (n+1)) ~> (1 n) is not _really_ an adjacent transposition, so
+    one ought to only pass 0 <= i < n - 1.
     """
     n_pred = lc_pred.n
     code = lc_pred.index2code(index, squeeze=True)
