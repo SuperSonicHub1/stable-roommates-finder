@@ -163,6 +163,10 @@ if __name__ == "__main__":
 
     for path in tqdm(read_base.glob("*.json")):
         name = path.stem
+        save_path = write_base / f"{name}.png"
+        if save_path.exists():
+            continue
+
         data, max_dist, distance_stable_count, distance_count = analyze_json(path)
         popt_exp, _ = fit_likelihood_exponential(
             data, max_dist, distance_stable_count, distance_count
@@ -173,3 +177,4 @@ if __name__ == "__main__":
         fig.set_figwidth(11)
         fig.set_figheight(8.5)
         fig.savefig(write_base / f"{name}.png", dpi=300)
+        plt.close(fig)
